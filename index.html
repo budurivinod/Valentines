@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Dearest Cindy</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary-red: #ff4d6d; --soft-pink: #ffccd5; --dark-red: #c9184a; --gold: #ffb703; }
+        body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: #fff0f3; color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        #home-screen { text-align: center; padding: 50px 20px; }
+        .heart-container { position: relative; width: 160px; height: 160px; margin: 50px auto; cursor: pointer; }
+        .heart { background-color: var(--primary-red); display: inline-block; height: 80px; position: relative; top: 0; transform: rotate(-45deg); width: 80px; animation: beat 1s infinite; }
+        .heart:before, .heart:after { content: ""; background-color: var(--primary-red); border-radius: 50%; height: 80px; position: absolute; width: 80px; }
+        .heart:before { top: -40px; left: 0; }
+        .heart:after { left: 40px; top: 0; }
+        @keyframes beat { 0%, 100% { transform: scale(1) rotate(-45deg); } 50% { transform: scale(1.2) rotate(-45deg); } }
+        .locked .heart { background-color: #999 !important; animation: none; cursor: not-allowed; }
+        .locked .heart:before, .locked .heart:after { background-color: #999 !important; }
+        #timer { font-size: 1.8rem; font-weight: bold; color: var(--dark-red); margin-top: 20px; letter-spacing: 2px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; text-align: center; }
+        .letter-box { max-width: 500px; margin: 20px auto; padding: 30px; border: 2px solid var(--soft-pink); border-radius: 15px; font-family: 'Dancing Script', cursive; font-size: 1.4rem; background: #fffafa; line-height: 1.6; }
+        .daily-image { width: 90%; max-width: 350px; border-radius: 15px; margin: 20px 0; border: 5px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .btn { background: var(--primary-red); color: white; border: none; padding: 12px 25px; border-radius: 25px; font-size: 1rem; cursor: pointer; margin: 10px; transition: 0.3s; font-weight: 600; }
+        .btn-adult { background: #5a189a; }
+        .btn:hover { transform: scale(1.05); }
+        .wheel-box { background: #f8edeb; padding: 15px; border-radius: 15px; margin: 15px 0; border: 1px dashed var(--primary-red); }
+        #result-display, #adult-result { font-weight: bold; color: var(--dark-red); margin: 10px; min-height: 24px; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="YOUR_SONG_URL_HERE.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="home-screen">
+        <h1 id="main-title">Hi Cindy... ❤️</h1>
+        <div class="heart-container" id="heart-trigger" onclick="handleHeartClick()">
+            <div class="heart"></div>
+        </div>
+        <div id="timer">00:00:00:00</div>
+        <p id="status-text">Our next chapter unfolds soon.</p>
+    </div>
+
+    <div id="overlay" class="overlay">
+        <h1 id="day-title" style="color: var(--dark-red); margin-bottom: 0;"></h1>
+        <div id="animation-zone" style="font-size: 4rem; margin: 10px 0;"></div>
+        <div class="letter-box" id="letter-content"></div>
+        <img id="couple-photo" class="daily-image" src="" alt="A memory with Cindy">
+        
+        <div id="game-zone" style="display:none;">
+            <div class="wheel-box">
+                <h3>🎡 The Date Lottery</h3>
+                <button class="btn" onclick="spin('normal')">Spin for Our Date</button>
+                <div id="result-display"></div>
+            </div>
+            <div class="wheel-box" style="background: #f3e5f5;">
+                <h3>🔞 After Dark (For Us Only)</h3>
+                <button class="btn btn-adult" onclick="spin('adult')">Spin for a Secret</button>
+                <div id="adult-result"></div>
+            </div>
+        </div>
+
+        <button class="btn" style="background:#333;" onclick="closeOverlay()">Close & Lock for Tomorrow</button>
+    </div>
+
+    <script>
+        const valentineData = {
+            7: { title: "Rose Day", emoji: "🌹", photo: "rose.jpg", letter: "Cindy, just like a rose, you brought color and fragrance into my dull life. This digital rose is a promise that I will always strive to keep your life blooming. I love you!" },
+            8: { title: "Propose Day", emoji: "💍", photo: "propose.jpg", letter: "I don't need a fancy ring to tell you this: I want to walk through every up and down with you. Will you keep being my partner in everything, Cindy?" },
+            9: { title: "Chocolate Day", emoji: "🍫", photo: "choco.jpg", letter: "To the girl who is sweeter than any chocolate—here’s a little treat for you. May our life together always be as sweet as your smile." },
+            10: { title: "Teddy Day", emoji: "🧸", photo: "teddy.jpg", letter: "Whenever I'm not there to hold you, imagine this teddy is me giving you the warmest hug. You're my favorite person to cuddle, Cindy." },
+            11: { title: "Promise Day", emoji: "🤝", photo: "promise.jpg", letter: "Cindy, I promise to listen when you speak, to support your dreams, and to never let go of your hand. My loyalty is yours forever." },
+            12: { title: "Hug Day", emoji: "🫂", photo: "hug.jpg", letter: "A hug from you is my favorite place in the world. It’s where I feel safe and loved. Sending you a massive digital hug today!" },
+            13: { title: "Kiss Day", emoji: "💋", photo: "kiss.jpg", letter: "One kiss from you makes my heart skip a beat. I'm counting down the minutes until I can see you again and show you how much I've missed you." },
+            14: { title: "Valentine's Day", emoji: "💝", photo: "vday.jpg", letter: "Happy Valentine's Day, Cindy! You are my greatest adventure and my favorite love story. Today is all about us. Ready for some fun?" }
+        };
+
+        const normalWheels = ["Movie Night", "Romantic Dinner", "Long Drive", "Cooking Together", "Stargazing Date", "Surprise Gift!"];
+        const adultWheels = ["Long Passionate Kiss", "Full Body Massage", "Shower Together", "Try a New Position", "Breakfast in Bed (Naked)", "Wear something Sexy"];
+
+        function updateUI() {
+            const now = new Date();
+            const day = now.getDate();
+            const month = now.getMonth() + 1;
+            const debug = false; // Set to true to test immediately
+
+            if ((month === 2 && day >= 7 && day <= 14) || debug) {
+                document.getElementById('heart-trigger').classList.remove('locked');
+                document.getElementById('status-text').innerText = "Click to unlock Cindy's surprise!";
+            } else {
+                document.getElementById('heart-trigger').classList.add('locked');
+                startCountdown();
+            }
+        }
+
+        function startCountdown() {
+            const nextDay = new Date();
+            nextDay.setHours(24,0,0,0);
+            setInterval(() => {
+                const dist = nextDay - new Date();
+                const h = Math.floor((dist / (1000*60*60)));
+                const m = Math.floor((dist % (1000*60*60)) / (1000*60));
+                const s = Math.floor((dist % (1000*60)) / 1000);
+                document.getElementById("timer").innerHTML = `${h}h ${m}m ${s}s`;
+            }, 1000);
+        }
+
+        function handleHeartClick() {
+            if (document.getElementById('heart-trigger').classList.contains('locked')) return;
+            
+            const day = new Date().getDate();
+            const data = valentineData[day] || valentineData[14]; // Default to 14 if testing
+            
+            document.getElementById('bgMusic').play().catch(() => {});
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ff4d6d', '#ffffff'] });
+
+            document.getElementById('day-title').innerText = data.title;
+            document.getElementById('animation-zone').innerText = data.emoji;
+            document.getElementById('letter-content').innerText = data.letter;
+            document.getElementById('couple-photo').src = data.photo;
+
+            if (day === 14) document.getElementById('game-zone').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function spin(type) {
+            const arr = type === 'normal' ? normalWheels : adultWheels;
+            const resId = type === 'normal' ? 'result-display' : 'adult-result';
+            const display = document.getElementById(resId);
+            display.innerText = "Spinning...";
+            setTimeout(() => {
+                display.innerText = "✨ " + arr[Math.floor(Math.random() * arr.length)] + " ✨";
+            }, 1000);
+        }
+
+        function closeOverlay() { document.getElementById('overlay').style.display = 'none'; }
+        updateUI();
+    </script>
+</body>
+</html>
