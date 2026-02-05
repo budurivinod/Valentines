@@ -85,7 +85,7 @@
             const now = new Date();
             const day = now.getDate();
             const month = now.getMonth() + 1;
-            const debug = false; // Set to true to test immediately
+            const debug = true; // Set to true to test immediately
 
             if ((month === 2 && day >= 7 && day <= 14) || debug) {
                 document.getElementById('heart-trigger').classList.remove('locked');
