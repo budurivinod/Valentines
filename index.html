@@ -2,142 +2,245 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For My Dearest Cindy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For My Baby ❤️</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary-red: #ff4d6d; --soft-pink: #ffccd5; --dark-red: #c9184a; --gold: #ffb703; }
-        body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: #fff0f3; color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
-        #home-screen { text-align: center; padding: 50px 20px; }
-        .heart-container { position: relative; width: 160px; height: 160px; margin: 50px auto; cursor: pointer; }
-        .heart { background-color: var(--primary-red); display: inline-block; height: 80px; position: relative; top: 0; transform: rotate(-45deg); width: 80px; animation: beat 1s infinite; }
-        .heart:before, .heart:after { content: ""; background-color: var(--primary-red); border-radius: 50%; height: 80px; position: absolute; width: 80px; }
-        .heart:before { top: -40px; left: 0; }
-        .heart:after { left: 40px; top: 0; }
-        @keyframes beat { 0%, 100% { transform: scale(1) rotate(-45deg); } 50% { transform: scale(1.2) rotate(-45deg); } }
-        .locked .heart { background-color: #999 !important; animation: none; cursor: not-allowed; }
-        .locked .heart:before, .locked .heart:after { background-color: #999 !important; }
-        #timer { font-size: 1.8rem; font-weight: bold; color: var(--dark-red); margin-top: 20px; letter-spacing: 2px; }
+        :root { --primary-red: #ff4d6d; --soft-pink: #ffccd5; --dark-red: #c9184a; --heart-glow: rgba(255, 77, 109, 0.5); --purple: #5a189a; }
+        body { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background: #fff0f3; color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden; touch-action: manipulation; }
+        .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .floating-heart { position: absolute; bottom: -100px; opacity: 0.6; animation: float 10s linear infinite; font-size: 24px; }
+        @keyframes float { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 10% { opacity: 0.7; } 100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
+
+        #home-screen { text-align: center; padding: 40px 20px; z-index: 10; position: relative; width: 100%; }
+
+        /* 3D HEART UI */
+        .heart-wrapper { position: relative; width: 100%; height: 250px; display: flex; justify-content: center; align-items: center; cursor: pointer; margin-top: 20px; }
+        .heart-glow { position: absolute; width: 150px; height: 150px; background: var(--primary-red); filter: blur(40px); opacity: 0; transition: 0.5s; border-radius: 50%; }
+        .beating .heart-glow { opacity: 0.4; animation: glowPulse 1.2s infinite ease-in-out; }
+        .heart-3d { 
+            position: relative; width: 120px; height: 110px; z-index: 10;
+            background: radial-gradient(circle at 35% 35%, #ff99ac, #ff4d6d 45%, #a71239 90%);
+            -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/></svg>');
+            -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;
+        }
+        .beating .heart-3d { animation: heartPulse 1.2s infinite ease-in-out; }
+        @keyframes heartPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes glowPulse { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.3); opacity: 0.5; } }
+
+        .ecg-container { position: absolute; width: 100%; height: 100px; overflow: hidden; pointer-events: none; z-index: 5; }
+        .ecg-svg { width: 200%; height: 100%; position: absolute; left: 0; opacity: 0.1; transition: 0.5s; }
+        .beating ~ .ecg-container .ecg-svg { opacity: 0.6; animation: ecg-scroll 3s linear infinite; }
+        @keyframes ecg-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        .locked .heart-3d { background: #999 !important; filter: grayscale(1); }
+
+        /* REVEAL IMAGE STYLE */
+        .reveal-photo { width: 200px; height: 200px; border-radius: 15px; border: 4px solid var(--soft-pink); object-fit: cover; margin: 0 auto 15px; display: block; }
+
+        .collection-tray { display: flex; gap: 8px; margin-top: 20px; justify-content: center; background: rgba(255,255,255,0.5); padding: 10px; border-radius: 20px; }
+        .tiny-heart { font-size: 1.1rem; opacity: 0.2; color: grey; }
+        .tiny-heart.collected { opacity: 1; color: var(--primary-red); transform: scale(1.2); }
+        
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; text-align: center; }
-        .letter-box { max-width: 500px; margin: 20px auto; padding: 30px; border: 2px solid var(--soft-pink); border-radius: 15px; font-family: 'Dancing Script', cursive; font-size: 1.4rem; background: #fffafa; line-height: 1.6; }
-        .daily-image { width: 90%; max-width: 350px; border-radius: 15px; margin: 20px 0; border: 5px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .btn { background: var(--primary-red); color: white; border: none; padding: 12px 25px; border-radius: 25px; font-size: 1rem; cursor: pointer; margin: 10px; transition: 0.3s; font-weight: 600; }
-        .btn-adult { background: #5a189a; }
-        .btn:hover { transform: scale(1.05); }
-        .wheel-box { background: #f8edeb; padding: 15px; border-radius: 15px; margin: 15px 0; border: 1px dashed var(--primary-red); }
-        #result-display, #adult-result { font-weight: bold; color: var(--dark-red); margin: 10px; min-height: 24px; font-size: 1.2rem; }
+        .letter-box { max-width: 500px; margin: 15px auto; padding: 25px; border: 2px solid var(--soft-pink); border-radius: 15px; font-family: 'Dancing Script', cursive; font-size: 1.5rem; background: #fffafa; line-height: 1.4; }
+        .decoder-box { background: #fee; padding: 15px; border-radius: 10px; margin-top: 10px; border: 2px dashed var(--primary-red); }
+        .btn { background: var(--primary-red); color: white; border: none; padding: 15px 35px; border-radius: 30px; font-weight: 600; cursor: pointer; margin: 15px; }
+
+        /* WHEEL UI */
+        .wheel-box { position: relative; width: 220px; height: 220px; margin: 20px auto; }
+        .wheel-needle { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 30px; z-index: 10; }
+        .wheel-canvas { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #333; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
+        .win-tag { display: inline-block; background: #f0f0f0; padding: 5px 15px; border-radius: 10px; font-weight: bold; color: var(--dark-red); margin-top: 5px; min-height: 25px; }
+
+        #mini-game-zone { width: 100%; height: 350px; position: relative; background: rgba(255,255,255,0.4); border-radius: 20px; border: 1px dashed var(--soft-pink); margin-top: 10px; overflow: hidden; touch-action: none; }
+        .game-item { position: absolute; font-size: 70px; cursor: grab; z-index: 50; top: 120px; user-select: none; touch-action: none; }
+        #target-item { position: absolute; font-size: 80px; opacity: 0.3; right: 30px; top: 120px; z-index: 10; }
     </style>
 </head>
-<body>
-
-    <audio id="bgMusic" loop>
-        <source src="YOUR_SONG_URL_HERE.mp3" type="audio/mpeg">
-    </audio>
-
+<body onload="init()">
+    <div class="bg-animation" id="bg-animation"></div>
     <div id="home-screen">
-        <h1 id="main-title">Hi Cindy... ❤️</h1>
-        <div class="heart-container" id="heart-trigger" onclick="handleHeartClick()">
-            <div class="heart"></div>
+        <h1 style="color: var(--dark-red); margin-bottom: 0;">For My Cindy ❤️</h1>
+        <div class="heart-wrapper" id="heart-trigger" onclick="handleHeartClick()">
+            <div class="heart-glow"></div>
+            <div class="heart-3d" id="main-heart"></div>
+            <div class="ecg-container"><svg class="ecg-svg" viewBox="0 0 800 100" preserveAspectRatio="none"><path d="M0,50 L100,50 L110,30 L125,70 L140,10 L160,90 L180,50 L300,50 L400,50 L410,30 L425,70 L440,10 L460,90 L480,50 L600,50 L800,50" stroke="#ff4d6d" stroke-width="3" fill="none" /></svg></div>
         </div>
-        <div id="timer">00:00:00:00</div>
-        <p id="status-text">Our next chapter unfolds soon.</p>
+        <div id="status-text" style="font-weight: bold; color: var(--dark-red);">WAITING...</div>
+        <div id="timer" style="font-weight: bold; color: var(--dark-red); margin-bottom: 20px;">00:00:00:00</div>
+        <div class="collection-tray"><span class="tiny-heart" id="h7">❤️</span><span class="tiny-heart" id="h8">❤️</span><span class="tiny-heart" id="h9">❤️</span><span class="tiny-heart" id="h10">❤️</span><span class="tiny-heart" id="h11">❤️</span><span class="tiny-heart" id="h12">❤️</span><span class="tiny-heart" id="h13">❤️</span><span class="tiny-heart" id="h14">⭐</span></div>
     </div>
 
     <div id="overlay" class="overlay">
-        <h1 id="day-title" style="color: var(--dark-red); margin-bottom: 0;"></h1>
-        <div id="animation-zone" style="font-size: 4rem; margin: 10px 0;"></div>
-        <div class="letter-box" id="letter-content"></div>
-        <img id="couple-photo" class="daily-image" src="" alt="A memory with Cindy">
-        
-        <div id="game-zone" style="display:none;">
-            <div class="wheel-box">
-                <h3>🎡 The Date Lottery</h3>
-                <button class="btn" onclick="spin('normal')">Spin for Our Date</button>
-                <div id="result-display"></div>
-            </div>
-            <div class="wheel-box" style="background: #f3e5f5;">
-                <h3>🔞 After Dark (For Us Only)</h3>
-                <button class="btn btn-adult" onclick="spin('adult')">Spin for a Secret</button>
-                <div id="adult-result"></div>
-            </div>
+        <h2 id="day-title" style="color: var(--dark-red); font-family: 'Dancing Script'; font-size: 2.5rem;"></h2>
+        <div id="mini-game-zone">
+            <p id="game-instruction" style="padding: 10px 20px; font-weight: bold;"></p>
+            <div id="drag-item" class="game-item"></div>
+            <div id="target-item"></div>
         </div>
+        <div id="reveal-zone" style="display:none;">
+            <img id="reveal-img" class="reveal-photo" src="" alt="Surprise Photo">
+            <div class="letter-box" id="letter-content"></div>
+            
+            <div id="game-zone" style="display:none;">
+                <div class="wheel-box"><div class="wheel-needle">📍</div><canvas id="normalWheel" class="wheel-canvas" width="300" height="300"></canvas></div>
+                <button class="btn" onclick="spinWheel('normal')">Spin Date Wheel</button>
+                <div id="normal-res" class="win-tag"></div>
+                <div class="wheel-box"><div class="wheel-needle">📍</div><canvas id="adultWheel" class="wheel-canvas" width="300" height="300"></canvas></div>
+                <button class="btn" style="background:var(--purple)" onclick="spinWheel('adult')">Spin Secret Wheel</button>
+                <div id="adult-res" class="win-tag"></div>
+            </div>
 
-        <button class="btn" style="background:#333;" onclick="closeOverlay()">Close & Lock for Tomorrow</button>
+            <div class="decoder-box" id="daily-decoder">
+                <p style="margin:0; font-size: 0.9rem;">Today's Secret Mystery Letter:</p>
+                <h2 id="secret-clue" style="color: var(--dark-red); margin: 5px 0;"></h2>
+            </div>
+
+            <div id="final-vault" style="display:none; padding-top: 20px;">
+                <input type="text" id="vault-input" style="padding: 12px; font-size: 1.2rem; text-align: center; width: 80%; border-radius: 15px; border: 2px solid var(--primary-red); text-transform: uppercase;" placeholder="REARRANGE LETTERS">
+                <button class="btn" onclick="checkVault()">Unlock Final Surprise</button>
+            </div>
+
+            <button class="btn" onclick="closeOverlay()">I Love You ❤️</button>
+        </div>
     </div>
 
     <script>
+        const githubUser = "budurivinod"; 
+        const githubRepo = "Valentines"; 
+        const debug = false; 
+
         const valentineData = {
-            7: { title: "Rose Day", emoji: "🌹", photo: "rose.jpg", letter: "Cindy, just like a rose, you brought color and fragrance into my dull life. This digital rose is a promise that I will always strive to keep your life blooming. I love you!" },
-            8: { title: "Propose Day", emoji: "💍", photo: "propose.jpg", letter: "I don't need a fancy ring to tell you this: I want to walk through every up and down with you. Will you keep being my partner in everything, Cindy?" },
-            9: { title: "Chocolate Day", emoji: "🍫", photo: "choco.jpg", letter: "To the girl who is sweeter than any chocolate—here’s a little treat for you. May our life together always be as sweet as your smile." },
-            10: { title: "Teddy Day", emoji: "🧸", photo: "teddy.jpg", letter: "Whenever I'm not there to hold you, imagine this teddy is me giving you the warmest hug. You're my favorite person to cuddle, Cindy." },
-            11: { title: "Promise Day", emoji: "🤝", photo: "promise.jpg", letter: "Cindy, I promise to listen when you speak, to support your dreams, and to never let go of your hand. My loyalty is yours forever." },
-            12: { title: "Hug Day", emoji: "🫂", photo: "hug.jpg", letter: "A hug from you is my favorite place in the world. It’s where I feel safe and loved. Sending you a massive digital hug today!" },
-            13: { title: "Kiss Day", emoji: "💋", photo: "kiss.jpg", letter: "One kiss from you makes my heart skip a beat. I'm counting down the minutes until I can see you again and show you how much I've missed you." },
-            14: { title: "Valentine's Day", emoji: "💝", photo: "vday.jpg", letter: "Happy Valentine's Day, Cindy! You are my greatest adventure and my favorite love story. Today is all about us. Ready for some fun?" }
+            7: { title: "Rose Day", emoji: "🌹", target: "🏺", clue: "V", instr: "Drag the Rose to the Vase!", letter: "That rose I gave near Beratena Agrahara Metro wasn’t just a flower… it was my heart being brave enough to admit that it wants you today, tomorrow, and in every lifetime after this 🌹❤️", filename: "roseday.jpg" },
+            8: { title: "Propose Day", emoji: "💍", target: "🖐️", clue: "E", instr: "Place the ring on the hand!", letter: "I didn’t fall for you by accident… my heart already knew you were the one I want beside me in my future, my home, and my forever 💍❤️", filename: "proposeday.jpg" },
+            9: { title: "Chocolate Day", emoji: "🍫", target: "😋", clue: "C", instr: "Give the sweet treat!", letter: "You’re sweeter than chocolate and way more addictive once you entered my life, my heart decided it doesn’t need anything else 🍫😉", filename: "chocolateday.jpg" },
+            10: { title: "Teddy Day", emoji: "🧸", target: "🛏️", clue: "I", instr: "Bring the Teddy to bed!", letter: "I may act calm and strong, but one smile from you turns me into someone who just wants to hold you close and never let go 🧸❤️", filename: "teddyday.jpg" },
+            11: { title: "Promise Day", emoji: "🤙", target: "🤙", clue: "N", instr: "Match the pinky promise!", letter: "I promise to annoy you, protect you, stand by you, and love you fiercely not just when it’s easy, but especially when it matters 🤝✨", filename: "promiseday.jpg" },
+            12: { title: "Hug Day", emoji: "🫂", target: "🫂", clue: "D", instr: "Bring us together!", letter: "Your hugs feel like a silent promise like my heart whispering that this is where it belongs, now and always 🤗💫", filename: "hugday.jpg" },
+            13: { title: "Kiss Day", emoji: "💋", target: "👨‍❤️‍💋‍👨", clue: "Y", instr: "Seal it with a kiss!", letter: "If one kiss from you can make me forget the world, I can only imagine what a lifetime of kisses would do to my heart 😘🔥", filename: "kissday.jpg" },
+            14: { title: "Valentine's Day", emoji: "💝", target: "💖", clue: "L, O", instr: "Join the hearts!", letter: "You’re not just my Valentine you’re my destiny, my safe place, my future wife, and the love I want to wake up to for the rest of my life ❤️💍", filename: "valentinesday.jpg" }
         };
 
-        const normalWheels = ["Movie Night", "Romantic Dinner", "Long Drive", "Cooking Together", "Stargazing Date", "Surprise Gift!"];
-        const adultWheels = ["Long Passionate Kiss", "Full Body Massage", "Shower Together", "Try a New Position", "Breakfast in Bed (Naked)", "Wear something Sexy"];
+        const normalOpts = ["Dinner", "Movie", "Gift", "Wish", "Walk"];
+        const adultOpts = ["Kiss", "Massage", "Cuddle", "Sex", "Shower"];
+        let activeDrag = false;
 
-        function updateUI() {
-            const now = new Date();
-            const day = now.getDate();
-            const month = now.getMonth() + 1;
-            const debug = true; // Set to true to test immediately
+        function handleHeartClick() {
+            if (document.getElementById('heart-trigger').classList.contains('locked') && !debug) {
+                alert("Wait baby, the next surprise is coming! ❤️"); return;
+            }
+            const day = new Date().getDate();
+            const d = valentineData[day] || valentineData[7];
+            const photoUrl = `https://raw.githubusercontent.com/${githubUser}/${githubRepo}/main/images/${d.filename}`;
 
-            if ((month === 2 && day >= 7 && day <= 14) || debug) {
-                document.getElementById('heart-trigger').classList.remove('locked');
-                document.getElementById('status-text').innerText = "Click to unlock Cindy's surprise!";
-            } else {
-                document.getElementById('heart-trigger').classList.add('locked');
-                startCountdown();
+            document.getElementById('day-title').innerText = d.title;
+            document.getElementById('game-instruction').innerText = d.instr;
+            document.getElementById('letter-content').innerText = d.letter;
+            document.getElementById('secret-clue').innerText = d.clue;
+            document.getElementById('reveal-img').src = photoUrl;
+
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('mini-game-zone').style.display = 'block';
+            document.getElementById('reveal-zone').style.display = 'none';
+            document.getElementById('game-zone').style.display = 'none';
+
+            document.getElementById('drag-item').innerText = d.emoji;
+            document.getElementById('target-item').innerText = d.target;
+            document.getElementById('drag-item').style.left = '20px';
+
+            if(day === 14) { 
+                document.getElementById('final-vault').style.display = 'block'; 
+                document.getElementById('daily-decoder').style.display = 'none'; 
+            } else { 
+                document.getElementById('final-vault').style.display = 'none'; 
+                document.getElementById('daily-decoder').style.display = 'block'; 
             }
         }
 
-        function startCountdown() {
-            const nextDay = new Date();
-            nextDay.setHours(24,0,0,0);
-            setInterval(() => {
-                const dist = nextDay - new Date();
-                const h = Math.floor((dist / (1000*60*60)));
-                const m = Math.floor((dist % (1000*60*60)) / (1000*60));
-                const s = Math.floor((dist % (1000*60)) / 1000);
-                document.getElementById("timer").innerHTML = `${h}h ${m}m ${s}s`;
-            }, 1000);
+        function checkVault() {
+            if(document.getElementById('vault-input').value.toUpperCase() === "CINDYLOVE") {
+                confetti(); document.getElementById('game-zone').style.display = 'block';
+                document.getElementById('final-vault').style.display = 'none';
+            } else alert("Incorrect! Solve the mystery code!");
         }
 
-        function handleHeartClick() {
-            if (document.getElementById('heart-trigger').classList.contains('locked')) return;
-            
-            const day = new Date().getDate();
-            const data = valentineData[day] || valentineData[14]; // Default to 14 if testing
-            
-            document.getElementById('bgMusic').play().catch(() => {});
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#ff4d6d', '#ffffff'] });
-
-            document.getElementById('day-title').innerText = data.title;
-            document.getElementById('animation-zone').innerText = data.emoji;
-            document.getElementById('letter-content').innerText = data.letter;
-            document.getElementById('couple-photo').src = data.photo;
-
-            if (day === 14) document.getElementById('game-zone').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
+        function drawWheel(cId, opts) {
+            const canvas = document.getElementById(cId), ctx = canvas.getContext('2d');
+            opts.forEach((o, i) => {
+                ctx.beginPath(); ctx.fillStyle = i%2?'#ff4d6d':'#ffccd5'; ctx.moveTo(150,150);
+                ctx.arc(150,150,150,i*(Math.PI*2/opts.length),(i+1)*(Math.PI*2/opts.length)); ctx.fill();
+                ctx.save(); ctx.translate(150,150); ctx.rotate(i*(Math.PI*2/opts.length)+(Math.PI/opts.length));
+                ctx.fillStyle="white"; ctx.font="bold 16px Arial"; ctx.fillText(o,60,5); ctx.restore();
+            });
         }
 
-        function spin(type) {
-            const arr = type === 'normal' ? normalWheels : adultWheels;
-            const resId = type === 'normal' ? 'result-display' : 'adult-result';
-            const display = document.getElementById(resId);
-            display.innerText = "Spinning...";
+        function spinWheel(t) {
+            const isN = t==='normal', w = document.getElementById(isN?'normalWheel':'adultWheel'), res = document.getElementById(isN?'normal-res':'adult-res');
+            const deg = Math.floor(Math.random()*360)+1440;
+            res.innerText = "Spinning..."; w.style.transform = `rotate(${deg}deg)`;
             setTimeout(() => {
-                display.innerText = "✨ " + arr[Math.floor(Math.random() * arr.length)] + " ✨";
+                const arr = isN ? normalOpts : adultOpts;
+                const idx = Math.floor((360 - (deg % 360)) / (360/arr.length)) % arr.length;
+                res.innerText = "Winner: " + arr[idx] + "! ✨";
+                confetti({particleCount: 50, spread: 30});
+            }, 4000);
+        }
+
+        function updateLockStatus() {
+            const now = new Date(), day = now.getDate(), month = now.getMonth() + 1;
+            const trigger = document.getElementById('heart-trigger'), status = document.getElementById('status-text');
+            for(let i=7; i<=14; i++) {
+                const hEl = document.getElementById('h'+i);
+                if (day > i || localStorage.getItem('opened-'+i)) hEl.classList.add('collected');
+                else hEl.classList.remove('collected');
+            }
+            if ((month === 2 && day >= 7 && !localStorage.getItem('opened-'+day)) || debug) {
+                trigger.classList.remove('locked'); trigger.classList.add('beating'); status.innerText = "SURPRISE IS READY!";
+            } else {
+                trigger.classList.add('locked'); trigger.classList.remove('beating'); status.innerText = "WAITING...";
+            }
+        }
+
+        function init() {
+            updateLockStatus();
+            drawWheel('normalWheel', normalOpts); drawWheel('adultWheel', adultOpts);
+            setInterval(() => {
+                const next = new Date(); next.setHours(24,0,0,0);
+                const diff = next - new Date();
+                document.getElementById("timer").innerHTML = Math.floor(diff/3600000) + "h " + Math.floor((diff%3600000)/60000) + "m " + Math.floor((diff%60000)/1000) + "s";
+                updateLockStatus();
+            }, 1000);
+            const dragItem = document.getElementById('drag-item');
+            const targetItem = document.getElementById('target-item');
+            const moveDrag = (e) => {
+                if (!activeDrag) return;
+                let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                let zone = document.getElementById('mini-game-zone').getBoundingClientRect();
+                dragItem.style.left = (clientX - zone.left - 35) + 'px';
+                if (Math.abs(dragItem.getBoundingClientRect().left - targetItem.getBoundingClientRect().left) < 60) {
+                    activeDrag = false; confetti();
+                    document.getElementById('mini-game-zone').style.display = 'none';
+                    document.getElementById('reveal-zone').style.display = 'block';
+                }
+            };
+            dragItem.addEventListener('mousedown', () => activeDrag = true);
+            dragItem.addEventListener('touchstart', (e) => { activeDrag = true; e.preventDefault(); });
+            window.addEventListener('mousemove', moveDrag); window.addEventListener('touchmove', moveDrag, {passive: false});
+            window.addEventListener('mouseup', () => activeDrag = false); window.addEventListener('touchend', () => activeDrag = false);
+            setInterval(() => {
+                const b = document.createElement('div'); b.className = 'floating-heart'; b.innerText = '❤️';
+                b.style.left = Math.random() * 100 + 'vw'; document.getElementById('bg-animation').appendChild(b);
+                setTimeout(() => b.remove(), 10000);
             }, 1000);
         }
 
-        function closeOverlay() { document.getElementById('overlay').style.display = 'none'; }
-        updateUI();
+        function closeOverlay() {
+            localStorage.setItem('opened-'+ new Date().getDate(), 'true');
+            document.getElementById('overlay').style.display = 'none';
+            updateLockStatus();
+        }
     </script>
 </body>
 </html>
